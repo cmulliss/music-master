@@ -1,22 +1,22 @@
 import React, { Component } from 'react'
 import Artist from './Artist'
+import Tracks from './Tracks'
+import Search from './Search'
+//   import '../index.css'
 
 // global constant, wrapper address
 const API_ADDRESS = 'https://spotify-api-wrapper.appspot.com'
 
 class App extends Component {
-  state = { artistQuery: '', artist: null, tracks: [] }
+  state = { artist: null, tracks: [] }
 
-  // helper, set to callback fn
-  updateArtistQuery = (event) => {
-    console.log('event.target.value', event.target.value)
-    this.setState({ artistQuery: event.target.value })
+  componentDidMount() {
+    this.searchArtist('pentatonix')
   }
-  // since the fetch returns a promise, we follow up with a .then handler
-  // this takes a callback fn with a response parameter, and this itself has its own json method which returns a promise as well. Means we can chain a second .then handler which has the resulting json
-  searchArtist = () => {
+
+  searchArtist = (artistQuery) => {
     console.log('this.state', this.state)
-    fetch(`${API_ADDRESS}/artist/${this.state.artistQuery}`)
+    fetch(`${API_ADDRESS}/artist/${artistQuery}`)
       .then((response) => response.json())
       .then((json) => {
         if (json.artists.total > 0) {
@@ -33,27 +33,28 @@ class App extends Component {
       .catch((error) => alert(error.message))
   }
 
-  handleKeyPress = () => {
-    if (event.key === 'Enter') {
-      // event.preventDefault()
-      this.searchArtist()
-    }
-  }
-
   render() {
     console.log('this.state', this.state)
     return (
       <div>
         <h2>Music Master</h2>
-        <input
-          onChange={this.updateArtistQuery}
-          onKeyPress={this.handleKeyPress}
-          placeholder="Search for an Artist"
-        />
-        <button onClick={this.searchArtist}>Search</button>
+        <Search searchArtist={this.searchArtist} />
         <Artist artist={this.state.artist} />
+        <Tracks tracks={this.state.tracks} />
       </div>
     )
   }
 }
 export default App
+
+/*
+ since the fetch returns a promise, we follow up with a .then handler
+   this takes a callback fn with a response parameter, and this itself has its own json method which returns a promise as well. Means we can chain a second .then handler which has the resulting json
+
+Artist component with artist prop, as the Artist component accesses the artist through props.
+<Artist artist={this.state.artist} />
+
+We can specify a searchArtist property of the search component and pass it down: this.searchArtist itself as a fn reference. 
+ <Search searchArtist={this.searchArtist} />
+
+*/
